@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0B1F3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="COMAP Campo">
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>COMAP Campo · TJMG</title>
+<style>
+/* ════════════════════════════════════════════════════
+   COMAP CAMPO — Sistema de Fiscalização em Campo
+   Design: Institucional Refinado · TJMG 2026
+════════════════════════════════════════════════════ */
+:root {
+  --navy: #0B1F3E;
+  --navy2: #142947;
+  --navy3: #1e3a5f;
+  --gold: #F2A519;
+  --gold2: #FFB830;
+  --teal: #0B7A75;
+  --teal2: #0D9488;
+  --green: #15803D;
+  --red: #B91C1C;
+  --amber: #B45309;
+  --slate: #334155;
+  --bg: #F8FAFC;
+  --bg2: #EFF6FF;
+  --white: #FFFFFF;
+  --border: #CBD5E1;
+  --border2: #E2E8F0;
+  --text: #0F172A;
+  --text2: #475569;
+  --text3: #94A3B8;
+  --sh1: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --sh2: 0 4px 12px rgba(11,31,62,.10);
+  --sh3: 0 8px 32px rgba(11,31,62,.16);
+  --r: 16px; --r2: 12px; --r3: 8px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--navy); font-family:'DM Sans',system-ui,sans-serif; }
+
+/* APP SHELL */
+#app { position:fixed; inset:0; display:flex; flex-direction:column; background:var(--bg); color:var(--text); font-size:14px; overflow:hidden; }
+
+/* ── TOPBAR ─────────────────────────────────────── */
+.topbar {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px; padding-top:max(12px, env(safe-area-inset-top));
+  background:var(--navy); color:#fff; flex-shrink:0;
+  box-shadow:0 1px 0 rgba(255,255,255,.06), 0 4px 16px rgba(0,0,0,.3);
+}
+.tb-brand { display:flex; align-items:center; gap:10px; flex:1; }
+.tb-icon { width:34px; height:34px; background:var(--gold); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.tb-title { font-size:14px; font-weight:700; letter-spacing:-.2px; }
+.tb-sub { font-size:10px; color:rgba(255,255,255,.5); margin-top:1px; font-family:'DM Mono',monospace; letter-spacing:.5px; }
+.tb-actions { display:flex; gap:6px; }
+.tb-btn { width:32px; height:32px; border-radius:8px; border:none; background:rgba(255,255,255,.08); color:rgba(255,255,255,.7); cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; transition:.15s; }
+.tb-btn:hover { background:rgba(255,255,255,.14); }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:var(--gold); flex-shrink:0; animation:pulse 2s infinite; }
+.sync-dot.ok { background:#4ADE80; animation:none; }
+.sync-dot.err { background:var(--red); animation:none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── STATUS BAR ─────────────────────────────────── */
+.status-bar {
+  display:flex; align-items:center; gap:8px; padding:6px 16px;
+  background:var(--navy2); color:rgba(255,255,255,.65); font-size:10px;
+  font-family:'DM Mono',monospace; letter-spacing:.3px; flex-shrink:0;
+}
+.status-bar .sep { color:rgba(255,255,255,.2); }
+
+/* ── BOTTOM NAV ─────────────────────────────────── */
+.nav {
+  display:flex; background:var(--white); border-top:1px solid var(--border2);
+  flex-shrink:0; padding-bottom:env(safe-area-inset-bottom,0); z-index:20;
+}
+.nb {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:8px 4px 6px; border:none; background:none; cursor:pointer; color:var(--text3);
+  transition:.15s; position:relative;
+}
+.nb.on { color:var(--navy); }
+.nb::after {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:0; height:2px; background:var(--gold); border-radius:0 0 3px 3px; transition:.2s;
+}
+.nb.on::after { width:28px; }
+.nb .ni { font-size:20px; line-height:1.1; }
+.nb .nl { font-size:8px; font-weight:600; letter-spacing:.4px; text-transform:uppercase; }
+
+/* ── PAGES ─────────────────────────────────────── */
+.pg { flex:1; overflow:hidden; display:none; flex-direction:column; }
+.pg.act { display:flex; }
+
+/* ── LOGIN ─────────────────────────────────────── */
+#pg-login {
+  background:linear-gradient(160deg, var(--navy) 0%, #142947 50%, #1a3460 100%);
+  align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+#pg-login::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 30% 20%, rgba(242,165,25,.08) 0%, transparent 60%),
+             radial-gradient(ellipse at 70% 80%, rgba(11,122,117,.1) 0%, transparent 60%);
+}
+.login-wrap { width:100%; max-width:420px; padding:20px; position:relative; z-index:1; }
+.login-card {
+  background:rgba(255,255,255,.97); border-radius:24px;
+  padding:36px 28px; box-shadow:var(--sh3);
+  border:1px solid rgba(255,255,255,.6);
+}
+.login-hdr { text-align:center; margin-bottom:28px; }
+.login-emblem {
+  width:72px; height:72px; margin:0 auto 16px;
+  background:var(--navy); border-radius:20px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; box-shadow:0 8px 24px rgba(11,31,62,.25);
+}
+.login-hdr h1 { font-size:22px; font-weight:700; color:var(--navy); letter-spacing:-.4px; }
+.login-hdr .badge {
+  display:inline-block; margin-top:6px;
+  background:var(--bg2); color:var(--navy3); font-size:10px;
+  font-weight:600; padding:3px 10px; border-radius:20px;
+  border:1px solid var(--border);
+}
+
+/* ── FORM ──────────────────────────────────────── */
+.fld { margin-bottom:14px; }
+.fld label {
+  display:block; font-size:10px; font-weight:700; color:var(--text2);
+  text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px;
+}
+.fld input, .fld select, .fld textarea {
+  width:100%; padding:11px 14px; border:1.5px solid var(--border);
+  border-radius:var(--r3); font-size:14px; color:var(--text);
+  font-family:'DM Sans',inherit; outline:none; background:var(--white);
+  transition:border-color .15s, box-shadow .15s;
+}
+.fld input:focus, .fld select:focus, .fld textarea:focus {
+  border-color:var(--navy); box-shadow:0 0 0 3px rgba(11,31,62,.08);
+}
+.fld textarea { resize:none; line-height:1.5; min-height:60px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+/* ── BUTTONS ───────────────────────────────────── */
+.btn {
+  border:none; border-radius:var(--r3); padding:12px 16px;
+  font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+  transition:.15s; letter-spacing:-.1px; display:inline-flex; align-items:center; gap:6px;
+}
+.btn:active { transform:scale(.98); }
+.btn-full { width:100%; justify-content:center; padding:13px; font-size:14px; }
+.btn-navy { background:var(--navy); color:#fff; }
+.btn-navy:hover { background:var(--navy2); }
+.btn-gold { background:var(--gold); color:var(--navy); font-weight:700; }
+.btn-teal { background:var(--teal); color:#fff; }
+.btn-green { background:var(--green); color:#fff; }
+.btn-red { background:var(--red); color:#fff; }
+.btn-ghost { background:var(--bg); color:var(--text2); border:1px solid var(--border); }
+.btn-sm { padding:7px 12px; font-size:11px; }
+.brow { display:flex; gap:8px; margin-top:16px; }
+.brow .btn { flex:1; }
+#login-err { text-align:center; font-size:12px; color:var(--red); margin-top:10px; min-height:16px; font-weight:500; }
+
+/* ── PAGE HEADER ───────────────────────────────── */
+.pghdr {
+  padding:16px; background:var(--navy); color:#fff; flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.pghdr-inner { display:flex; align-items:flex-start; gap:12px; }
+.pghdr-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.pghdr h2 { font-size:17px; font-weight:700; letter-spacing:-.3px; }
+.pghdr p { font-size:11px; color:rgba(255,255,255,.6); margin-top:2px; }
+.pghdr-actions { margin-left:auto; display:flex; gap:6px; flex-shrink:0; margin-top:2px; }
+.pghdr .hbtn {
+  background:rgba(255,255,255,.12); border:none; color:rgba(255,255,255,.85);
+  border-radius:var(--r3); padding:6px 12px; font-size:11px; font-weight:600;
+  cursor:pointer; white-space:nowrap;
+}
+
+/* ── LIST AREA ─────────────────────────────────── */
+.lst { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; padding-bottom:90px; }
+
+/* ── CARDS ─────────────────────────────────────── */
+.crd {
+  background:var(--white); border-radius:var(--r); padding:14px;
+  box-shadow:var(--sh1); cursor:pointer; transition:.15s; border:1px solid var(--border2);
+}
+.crd:active { transform:scale(.99); box-shadow:var(--sh1); }
+.crd:hover { box-shadow:var(--sh2); }
+
+/* Card top */
+.crd-top { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+.crd-ico { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.crd-body { flex:1; }
+.crd-label { font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+.crd-title { font-size:14px; font-weight:700; color:var(--text); letter-spacing:-.2px; line-height:1.3; }
+.crd-sub { font-size:11px; color:var(--text2); margin-top:2px; }
+.crd-right { flex-shrink:0; }
+
+/* Chips */
+.chips { display:flex; gap:5px; flex-wrap:wrap; }
+.chip {
+  padding:3px 8px; border-radius:6px; font-size:10px; font-weight:600;
+  background:var(--bg); color:var(--text2); border:1px solid var(--border2);
+}
+.chip-teal { background:#F0FDFA; color:var(--teal); border-color:#CCFBF1; }
+.chip-amber { background:#FEF3C7; color:var(--amber); border-color:#FDE68A; }
+.chip-red { background:#FEF2F2; color:var(--red); border-color:#FECACA; }
+.chip-green { background:#F0FDF4; color:var(--green); border-color:#BBF7D0; }
+.chip-navy { background:#EFF6FF; color:var(--navy); border-color:#BFDBFE; }
+
+/* ── BADGES ─────────────────────────────────────── */
+.bdg { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700; letter-spacing:.3px; }
+.b-ok { background:#F0FDF4; color:var(--green); }
+.b-pend { background:#FEF3C7; color:var(--amber); }
+.b-atraso { background:#FEF2F2; color:var(--red); }
+.b-blue { background:#EFF6FF; color:#1D4ED8; }
+.b-gray { background:#F8FAFC; color:var(--text2); border:1px solid var(--border2); }
+
+/* ── KPI GRID ──────────────────────────────────── */
+.kgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.kcard {
+  background:var(--white); border-radius:var(--r2); padding:14px;
+  box-shadow:var(--sh1); text-align:center; cursor:pointer;
+  border:1px solid var(--border2); transition:.15s;
+}
+.kcard:hover { transform:translateY(-1px); box-shadow:var(--sh2); }
+.kval { font-size:28px; font-weight:700; color:var(--navy); font-family:'DM Mono',monospace; letter-spacing:-1px; }
+.kval.red { color:var(--red); } .kval.green { color:var(--green); } .kval.amber { color:var(--amber); }
+.klbl { font-size:10px; color:var(--text2); margin-top:3px; font-weight:500; }
+
+/* ── MODAL ──────────────────────────────────────── */
+.mbg { display:none; position:fixed; inset:0; background:rgba(11,31,62,.6); z-index:100; align-items:flex-end; backdrop-filter:blur(4px); }
+.mbg.open { display:flex; }
+.modal {
+  background:var(--white); border-radius:24px 24px 0 0; width:100%;
+  max-height:94vh; overflow-y:auto; padding:20px 18px;
+  padding-bottom:max(20px, env(safe-area-inset-bottom));
+  box-shadow:0 -8px 40px rgba(11,31,62,.2);
+}
+.mhdr {
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  position:sticky; top:0; background:var(--white); padding:4px 0 12px;
+  border-bottom:1px solid var(--border2); z-index:1;
+}
+.mhdr h3 { flex:1; font-size:15px; font-weight:700; letter-spacing:-.2px; }
+.mclose {
+  width:28px; height:28px; border-radius:50%; border:none;
+  background:var(--bg); color:var(--text2); cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ── SECTION CARD ───────────────────────────────── */
+.scrd {
+  background:var(--white); border-radius:var(--r2); padding:14px;
+  box-shadow:var(--sh1); margin-bottom:10px; border:1px solid var(--border2);
+}
+.scrd-title {
+  font-size:10px; font-weight:700; color:var(--navy); text-transform:uppercase;
+  letter-spacing:.6px; margin-bottom:12px; display:flex; align-items:center; gap:6px;
+}
+.scrd-title::after { content:''; flex:1; height:1px; background:var(--border2); }
+
+/* ── TIMELINE CARD (periódicas do dia) ─────────── */
+.per-card {
+  background:var(--white); border-radius:var(--r2); overflow:hidden;
+  box-shadow:var(--sh1); border:1px solid var(--border2); cursor:pointer; transition:.15s;
+}
+.per-card:hover { box-shadow:var(--sh2); }
+.per-card-hdr { padding:12px 14px; display:flex; gap:10px; align-items:center; }
+.per-card-bar { width:4px; height:100%; border-radius:2px; flex-shrink:0; min-height:40px; }
+.per-card-body { flex:1; }
+.per-card-footer { padding:8px 14px; background:var(--bg); border-top:1px solid var(--border2); display:flex; gap:6px; align-items:center; }
+
+/* ── RADIO / TOGGLE ─────────────────────────────── */
+.rrow { display:flex; gap:14px; margin:5px 0 10px; }
+.rrow label { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; font-weight:500; }
+.toggle-group { display:flex; background:var(--bg); border-radius:var(--r3); padding:3px; gap:2px; }
+.toggle-opt { flex:1; text-align:center; padding:7px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; transition:.15s; color:var(--text2); }
+.toggle-opt.on { background:var(--navy); color:#fff; box-shadow:0 2px 6px rgba(11,31,62,.2); }
+
+/* ── DETAIL ROWS ────────────────────────────────── */
+.drow { display:flex; gap:8px; padding:8px 0; border-bottom:1px solid var(--border2); }
+.drow:last-child { border-bottom:none; }
+.dlbl { font-size:10px; font-weight:700; color:var(--text2); width:35%; text-transform:uppercase; letter-spacing:.4px; flex-shrink:0; padding-top:1px; }
+.dval { font-size:12px; font-weight:500; flex:1; color:var(--text); }
+
+/* ── FAB ────────────────────────────────────────── */
+.fab {
+  position:fixed; bottom:calc(56px + env(safe-area-inset-bottom,0) + 16px); right:16px;
+  width:52px; height:52px; border-radius:16px;
+  background:var(--navy); color:#fff; border:none; font-size:22px;
+  cursor:pointer; box-shadow:0 6px 20px rgba(11,31,62,.35); z-index:50;
+  display:flex; align-items:center; justify-content:center; transition:.15s;
+}
+.fab:active { transform:scale(.92); }
+.fab-gold { background:var(--gold); color:var(--navy); box-shadow:0 6px 20px rgba(242,165,25,.4); }
+
+/* ── EMPTY STATE ─────────────────────────────────── */
+.empty { text-align:center; padding:48px 24px; }
+.empty-ico { font-size:48px; margin-bottom:12px; opacity:.5; }
+.empty-title { font-size:15px; font-weight:700; color:var(--text2); margin-bottom:6px; }
+.empty-sub { font-size:12px; color:var(--text3); }
+
+/* ── PROGRESS BAR ───────────────────────────────── */
+.prog-bar { height:6px; background:var(--border2); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:var(--teal); border-radius:3px; transition:.4s; }
+
+/* ── TOAST ──────────────────────────────────────── */
+#toast {
+  position:fixed; bottom:70px; left:50%; transform:translateX(-50%);
+  background:var(--slate); color:#fff; padding:10px 18px; border-radius:20px;
+  font-size:12px; font-weight:600; z-index:500; opacity:0; transition:.25s;
+  pointer-events:none; white-space:nowrap; max-width:92vw; text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.2);
+}
+#toast.on { opacity:1; }
+
+/* ── LOADING ────────────────────────────────────── */
+#load {
+  position:fixed; inset:0; background:rgba(248,250,252,.92);
+  display:none; align-items:center; justify-content:center; z-index:400;
+  flex-direction:column; gap:12px; backdrop-filter:blur(4px);
+}
+#load.on { display:flex; }
+.spin {
+  width:32px; height:32px; border:3px solid var(--border);
+  border-top-color:var(--navy); border-radius:50%;
+  animation:sp .7s linear infinite;
+}
+@keyframes sp { to { transform:rotate(360deg); } }
+#load-txt { font-size:12px; font-weight:600; color:var(--text2); letter-spacing:.3px; }
+
+/* ── SYNC INDICATOR ─────────────────────────────── */
+.sync-indicator {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 14px; background:var(--navy2); flex-shrink:0;
+  font-size:10px; color:rgba(255,255,255,.6); font-family:'DM Mono',monospace;
+}
+.sync-indicator.syncing { color:var(--gold2); }
+.sync-indicator.synced { color:#4ADE80; }
+.sync-indicator.error { color:#F87171; }
+
+/* ── RELATÓRIO ──────────────────────────────────── */
+.rpt-btn {
+  display:flex; align-items:center; gap:10px; background:var(--white);
+  border:1px solid var(--border2); border-radius:var(--r2); padding:14px;
+  cursor:pointer; transition:.15s; width:100; box-shadow:var(--sh1);
+}
+.rpt-btn:hover { box-shadow:var(--sh2); background:var(--bg2); }
+.rpt-btn .rbt-ico { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.rpt-btn .rbt-title { font-size:13px; font-weight:700; color:var(--text); }
+.rpt-btn .rbt-sub { font-size:11px; color:var(--text2); margin-top:1px; }
+
+/* ── DASHBOARD CHART ────────────────────────────── */
+.mini-chart { display:flex; align-items:flex-end; gap:4px; height:40px; }
+.mc-bar { flex:1; border-radius:3px 3px 0 0; background:var(--teal); opacity:.7; min-width:6px; }
+.mc-bar.today { opacity:1; background:var(--gold); }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ════ LOGIN ════════════════════════════════════ -->
+<div class="pg act" id="pg-login">
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;z-index:1;">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-hdr">
+        <div class="login-emblem">📋</div>
+        <h1>COMAP Campo</h1>
+        <div class="badge">TJMG · Fiscalização em Campo</div>
+      </div>
+      <div class="fld"><label>E-mail institucional</label>
+        <input id="li-email" type="email" placeholder="seu@tjmg.jus.br" autocomplete="username" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="fld"><label>Senha</label>
+        <input id="li-senha" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+      </div>
+
+      <button class="btn btn-navy btn-full" onclick="login()">
+        <span>Entrar no Sistema</span>
+      </button>
+      <div id="login-err"></div>
+      <div style="margin-top:16px;text-align:center;">
+        <a href="https://comaptjmg.github.io/comap-tjmg/" target="_blank" 
+           style="font-size:11px;color:var(--navy);font-weight:600;text-decoration:none;opacity:.7;">
+          ← Sistema Principal COMAP
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════ TOPBAR ═══════════════════════════════════ -->
+<div class="topbar" id="topbar" style="display:none">
+  <div class="tb-brand">
+    <div class="tb-icon">📋</div>
+    <div>
+      <div class="tb-title">COMAP Campo</div>
+      <div class="tb-sub" id="tb-sub">TJMG · FISCALIZAÇÃO</div>
+    </div>
+  </div>
+  <div class="sync-dot" id="sync-dot"></div>
+  <div class="tb-actions">
+    <button class="tb-btn" onclick="syncAll()" title="Sincronizar">⟳</button>
+    <button class="tb-btn" onclick="logout()" title="Sair">⏻</button>
+  </div>
+</div>
+
+<!-- ════ SYNC INDICATOR ═══════════════════════════ -->
+<div class="sync-indicator" id="sync-bar" style="display:none">
+  <span id="sync-txt">Aguardando sincronização…</span>
+</div>
+
+<!-- ════ INÍCIO ════════════════════════════════════ -->
+<div class="pg" id="pg-home">
+<div style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;padding-bottom:90px;">
+
+  <!-- Saudação -->
+  <div style="background:var(--navy);border-radius:var(--r);padding:18px;color:#fff;background:linear-gradient(135deg,var(--navy),var(--navy3));">
+    <div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-family:'DM Mono',monospace;" id="h-data"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:3px;">Bom dia, fiscal</div>
+    <div id="h-nome" style="font-size:20px;font-weight:700;letter-spacing:-.4px;"></div>
+    <div id="h-regiao" style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;"></div>
+    <div style="margin-top:14px;" id="h-progbar-wrap" hidden>
+      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:5px;">Periódicas deste mês</div>
+      <div class="prog-bar"><div class="prog-fill" id="h-prog" style="width:0%"></div></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:4px;" id="h-prog-txt"></div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kgrid" id="h-kpis"></div>
+
+  <!-- Periódicas agendadas hoje/semana -->
+  <div class="scrd">
+    <div class="scrd-title">📅 Periódicas desta semana</div>
+    <div id="h-per-semana"></div>
+  </div>
+
+  <!-- Ação rápida: registrar diário hoje -->
+  <button class="btn btn-gold btn-full" style="font-size:14px;font-weight:700;" onclick="abrirDiarioHoje()">
+    📋 Registrar Atividade de Hoje
+  </button>
+
+  <!-- Link sistema principal -->
+  <a href="https://comaptjmg.github.io/comap-tjmg/" target="_blank"
+     style="display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border2);border-radius:var(--r2);padding:14px;text-decoration:none;color:var(--text);box-shadow:var(--sh1);">
+    <div style="width:36px;height:36px;background:#EFF6FF;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🖥️</div>
+    <div><div style="font-size:13px;font-weight:700;">Sistema Principal COMAP</div><div style="font-size:11px;color:var(--text2);margin-top:1px;">Gestão completa · Relatórios · PCI</div></div>
+    <div style="margin-left:auto;color:var(--text3);">→</div>
+  </a>
+
+</div>
+</div>
+
+<!-- ════ PERIÓDICAS ════════════════════════════════ -->
+<div class="pg" id="pg-per">
+<div class="pghdr" style="background:linear-gradient(135deg,#065F46,#0D9488);">
+  <div class="pghdr-inner">
+    <div class="pghdr-icon" style="background:rgba(255,255,255,.15);">🔄</div>
+    <div>
+      <h2>Manutenções Periódicas</h2>
+      <p id="per-sub">Carregando...</p>
+    </div>
+    <div class="pghdr-actions">
+      <button class="hbtn" onclick="gerarRelPer()">📄</button>
+    </div>
+  </div>
+</div>
+<!-- Filtros -->
+<div style="padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border2);display:flex;gap:7px;overflow-x:auto;flex-shrink:0;">
+  <button class="chip chip-teal" id="f-per-todos" onclick="filtPer('todos',this)" style="cursor:pointer;border:none;padding:6px 12px;">Todos</button>
+  <button class="chip" id="f-per-agendado" onclick="filtPer('agendado',this)" style="cursor:pointer;border:none;padding:6px 12px;">Agendados</button>
+  <button class="chip" id="f-per-andamento" onclick="filtPer('andamento',this)" style="cursor:pointer;border:none;padding:6px 12px;">Em Andamento</button>
+  <button class="chip" id="f-per-concluido" onclick="filtPer('concluido',this)" style="cursor:pointer;border:none;padding:6px 12px;">Concluídos</button>
+  <div style="flex:1"></div>
+  <input id="per-q" placeholder="🔍 Buscar..." style="padding:5px 10px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;outline:none;min-width:0;max-width:120px;font-family:inherit;" oninput="renderPer()">
+</div>
+<div class="lst" id="per-list"></div>
+</div>
+
+<!-- ════ DIÁRIO ════════════════════════════════════ -->
+<div class="pg" id="pg-diario">
+<div class="pghdr" style="background:linear-gradient(135deg,var(--navy),var(--navy3));">
+  <div class="pghdr-inner">
+    <div class="pghdr-icon" style="background:rgba(255,255,255,.15);">📋</div>
+    <div>
+      <h2>Diário de Fiscalização</h2>
+      <p id="diario-sub">Carregando...</p>
+    </div>
+    <div class="pghdr-actions">
+      <button class="hbtn" onclick="gerarRelDiario()">📄</button>
+    </div>
+  </div>
+</div>
+<div class="lst" id="diario-list"></div>
+<button class="fab fab-gold" onclick="abrirModalDiario(null)">+</button>
+</div>
+
+<!-- ════ RELATÓRIOS ═══════════════════════════════ -->
+<div class="pg" id="pg-relat">
+<div class="pghdr" style="background:linear-gradient(135deg,#1E3A5F,#2D5187);">
+  <div class="pghdr-inner">
+    <div class="pghdr-icon" style="background:rgba(255,255,255,.15);">📊</div>
+    <div><h2>Relatórios</h2><p>Geração de relatórios profissionais</p></div>
+  </div>
+</div>
+<div class="lst" id="relat-list">
+  <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:700;padding:4px 0 2px;">Atividades de Campo</div>
+  <div class="rpt-btn" onclick="gerarRelDiario()">
+    <div class="rbt-ico" style="background:#EFF6FF;">📋</div>
+    <div><div class="rbt-title">Diário de Fiscalização</div><div class="rbt-sub">Registros do mês atual</div></div>
+    <div style="margin-left:auto;color:var(--text3);">→</div>
+  </div>
+  <div class="rpt-btn" onclick="gerarRelPer()">
+    <div class="rbt-ico" style="background:#F0FDFA;">🔄</div>
+    <div><div class="rbt-title">Manutenções Periódicas</div><div class="rbt-sub">Status por região</div></div>
+    <div style="margin-left:auto;color:var(--text3);">→</div>
+  </div>
+  <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:700;padding:12px 0 2px;">Consolidados (requer acesso ao sistema principal)</div>
+  <div class="rpt-btn" onclick="window.open('https://comaptjmg.github.io/comap-tjmg/','_blank')">
+    <div class="rbt-ico" style="background:#FEF2F2;">🚨</div>
+    <div><div class="rbt-title">Relatório Emergencial</div><div class="rbt-sub">Abrir no Sistema Principal</div></div>
+    <div style="margin-left:auto;color:var(--text3);">↗</div>
+  </div>
+  <div class="rpt-btn" onclick="window.open('https://comaptjmg.github.io/comap-tjmg/','_blank')">
+    <div class="rbt-ico" style="background:#FEF3C7;">🔥</div>
+    <div><div class="rbt-title">Relatório PCI</div><div class="rbt-sub">Abrir no Sistema Principal</div></div>
+    <div style="margin-left:auto;color:var(--text3);">↗</div>
+  </div>
+</div>
+</div>
+
+<!-- ════ NAVBAR ═══════════════════════════════════ -->
+<div class="nav" id="navbar" style="display:none">
+  <button class="nb on" onclick="goPage('home',this)"><span class="ni">🏠</span><span class="nl">Início</span></button>
+  <button class="nb" onclick="goPage('per',this)"><span class="ni">🔄</span><span class="nl">Periódicas</span></button>
+  <button class="nb" onclick="goPage('diario',this)"><span class="ni">📋</span><span class="nl">Diário</span></button>
+  <button class="nb" onclick="goPage('relat',this)"><span class="ni">📊</span><span class="nl">Relatórios</span></button>
+</div>
+
+<!-- ════ MODAL PERIÓDICA DETALHE ══════════════════ -->
+<div class="mbg" id="m-per"><div class="modal">
+  <div class="mhdr"><h3 id="m-per-t">Periódica</h3><button class="mclose" onclick="closeM('m-per')">✕</button></div>
+  <div id="m-per-b"></div>
+</div></div>
+
+<!-- ════ MODAL DIÁRIO ═════════════════════════════ -->
+<div class="mbg" id="m-diario"><div class="modal">
+  <div class="mhdr"><h3 id="m-diario-t">📋 Registro do Dia</h3><button class="mclose" onclick="closeM('m-diario')">✕</button></div>
+  <div id="m-diario-b"></div>
+</div></div>
+
+<!-- ════ LOADING / TOAST ══════════════════════════ -->
+<div id="load"><div class="spin"></div><div id="load-txt">Carregando…</div></div>
+<div id="toast"></div>
+
+</div><!-- #app -->
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════
+//  COMAP Campo v2.0 — App de Fiscalização em Campo
+//  Sync: GitHub (primário) + Supabase (backup)
+//  Puxado do sistema principal: periódicas, usuarios
+// ═══════════════════════════════════════════════════════
+
+/* ── COMARCAS REAIS (extraídas dos dados) ──────────── */
+const COMARCAS_REAIS = {"CENTRAL":["BETIM","BONFIM","CAETÉ","CONTAGEM","JABOTICATUBAS","JUATUBA","LAGOA SANTA","OURO PRETO","RIBEIRÃO DAS NEVES","SABARÁ","SANTA BÁRBARA","SETE LAGOAS","VESPASIANO"],"LESTE":["ABRE CAMPO","AIMORÉS","ALVINÓPOLIS","AÇUCENA","BARÃO DE COCAIS","CARATINGA","CONCEIÇÃO DO MATO DENTRO","CONSELHEIRO PENA","CORONEL FABRICIANO","FERROS","GALILEIA","GOVERNADOR VALADARES","GUANHÃES","INHAPIM","IPANEMA","IPATINGA","IPATINGA - JESP","IPATINGA- F","ITABIRA","ITANHOMI","J MONLEVADE","JEQUERI","JOÃO MONLEVADE","LAJINHA","MANHUAÇU","MANHUMIRIM","MANTENA","MESQUITA","MUTUM","NOVA ERA","PEÇANHA","PONTE NOVA","RAUL SOARES","RESPLENDOR","RIO CASCA","RIO PIRACICABA","RIO VERMELHO","SABINÓPOLIS","SANTA BÁRBARA","SANTA MARIA DO SAÇUÍ","SANTA MARIA DO SUAÇUÍ","SERRO","SÃO DOMINGOS DO PRATA","SÃO JOÃO EVANGELISTA","TARUMIRIM","TIMÓTEO","VIRGINÓPOLIS"],"NORTE":["ALMENARA","ARAÇUAÍ","ARAÇUAÍ (PADRE PARAÍSO)","ARINOS","BOCAIUVA","BOCAIÚVA","BONFINÓPOLIS DE MINAS","BRASÍLIA DE MINAS","BUENÓPOLIS","BURITIS","CAPELINHA","CARLOS CHAGAS","CORAÇÃO DE JESUS","CORINTO","CURVELO","DIAMANTINA","ESPINOSA","FRANCISCO SÁ","GRÃO MOGOL","ITAMARANDIBA","ITAMBACURI","JACINTO","JAIBA","JANAÚBA","JANUÁRIA","JAÍBA","JEQUITINHONHA","JOÃO PINHEIRO","MALACACHETA","MANGA","MEDINA","MINAS NOVAS","MONTALVÂNIA","MONTE AZUL","MONTES CLAROS","NANUQUE","NORTE","NOVO CRUZEIRO","PADRE PARAISO","PADRE PARAÍSO (ARAÇUAÍ)","PARACATU","PEDRA AZUL","PIRAPORA","PORTEIRINHA","RIO PARDO DE MINAS","SALINAS","SÃO FRANCISCO","SÃO JOÃO DA PONTE","SÃO JOÃO DO PARAÍSO","SÃO ROMÃO","TAIOBEIRAS","TEÓFILO OTONI","TRÊS MARIAS","TURMALINA","UNAI","UNAÍ","VÁRZEA DA PALMA","ÁGUAS FORMOSAS"],"SUDOESTE":["ALPINÓPOLIS","ANDRADAS","ARCOS","AREADO","BAMBUÍ","BOTELHOS","CABO VERDE","CALDAS","CAMPESTRE","CARMO DO CAJURU","CARMO DO RIO CLARO","CÁSSIA","DIVINÓPOLIS","FORMIGA","GUAPÉ","GUARANÉSIA","GUAXUPÉ","IBIRACI","IGUATAMA","ITAMOGI","ITAMOJI","ITAPECERICA","JACUÍ","LAGOA DA PRATA","MONTE BELO","MONTE SANTO DE MINAS","MUZAMBINHO","NOVA RESENDE","NOVA SERRANA","PASSOS","PITANGUI","PIUMHI","POÇOS DE CALDAS","PRATÁPOLIS","SANTA RITA DE CALDAS","SANTO ANTÔNIO DO MONTE","SÃO ROQUE DE MINAS","SÃO SEBASTIÃO DO PARAÍSO"],"SUL":["AIURUOCA","ALFENAS","ANDRELÂNDIA","BAEPENDI","BOA ESPERANÇA","BOM SUCESSO","BORDA DA MATA","BRAZÓPOLIS","BUENO BRANDÃO","CACHOEIRA DE MINAS","CAMANDUCAIA","CAMBUQUIRA","CAMBUÍ","CAMPANHA","CAMPO BELO","CAMPOS GERAIS","CANDEIAS","CARMO DA MATA","CARMO DE MINAS","CARMÓPOLIS DE MINAS","CAXAMBU","CLÁUDIO","CONCEIÇÃO DO RIO VERDE","CRISTINA","CRUZÍLIA","ELOI MENDES","ELÓI MENDES","EXTREMA","ITAJUBÁ","ITAMONTE","ITANHANDU","ITUMIRIM","JACUTINGA","LAMBARI","LAVRAS","LAVRAS (JESP)","MACHADO","MONTE SIÃO","NATÉRCIA","NEPOMUCENO","OLIVEIRA","OURO FINO","PARAGUAÇU","PARAISÓPOLIS","PASSA QUATRO","PASSA TEMPO","PASSA-QUATRO","PEDRALVA","PERDÕES","POUSO ALEGRE","POÇO FUNDO","SANTA RITA DO SAPUCAÍ","SILVIANÓPOLIS","STA RITA DO SAPUCAÍ","SÃO GONÇALO DO SAPUCAÍ","SÃO LOURENÇO","TRÊS CORAÇÕES","TRÊS PONTAS","VARGINHA"],"TRIANGULO":["ABAETÉ","ARAGUARI","ARAXÁ","BOM DESPACHO","CAMPINA VERDE","CAMPOS ALTOS","CAPINÓPOLIS","CARMO DO PARANAÍBA","CONCEIÇÃO DAS ALAGOAS","CONQUISTA","COROMANDEL","FRONTEIRA","FRUTAL","IBIÁ","ITAPAGIPE","ITUIUTABA","ITURAMA","LUZ","MARTINHO CAMPOS","MONTE ALEGRE DE MINAS","MONTE CARMELO","MORADA NOVA DE MINAS","NOVA PONTE","PATOS DE MINAS","PATROCÍNIO","PERDIZES","POMPÉU","PRATA","PRESIDENTE OLEGÁRIO","RIO PARANAÍBA","SACRAMENTO","SANTA VITÓRIA","SÃO GOTARDO","TIROS","TUPACIGUARA","UBERABA","UBERLÂNDIA"],"ZONA_DA_MATA":["ALTO RIO DOCE","ALÉM PARAÍBA","BARBACENA","BARROSO","BELO VALE","BICAS","CARANDAÍ","CARANGOLA","CATAGUASES","CONGONHAS","CONSELHEIRO  LAFAIETE","CONSELHEIRO LAFAIETE","DIVINO","ENTRE RIOS DE MINAS","ERVÁLIA","ESPERA FELIZ","EUGENÓPOLIS","GUARANI","ITABIRITO","JUIZ DE FORA","LEOPOLDINA","LIMA DUARTE","MAR DE ESPANHA","MARIANA","MATIAS BARBOSA","MERCÊS","MIRADOURO","MIRAI","MIRAÍ","MURIAÉ","OURO BRANCO","OURO PRETO","PALMA","PIRANGA","PIRAPETINGA","PRADOS","RESENDE COSTA","RIO NOVO","RIO POMBA","RIO PRETO","SANTOS DUMONT","SENADOR FIRMINO","SÃO JOÃO DEL REI","SÃO JOÃO DEL-REI","SÃO JOÃO NEPOMUCENO","TEIXEIRAS","TOMBOS","UBÁ","VISCONDE DO RIO BRANCO","VIÇOSA"]};
+
+/* ── CONFIGURAÇÃO ──────────────────────────────────── */
+const CFG = {
+  OWNER:  'COMAPTJMG',
+  TJMG:   'comap-tjmg',
+  CAMPO:  'comap-campo',
+  BRANCH: 'main',
+  get RAW_TJMG() { return `https://raw.githubusercontent.com/${this.OWNER}/${this.TJMG}/${this.BRANCH}/data/`; },
+  get RAW_CAMPO(){ return `https://raw.githubusercontent.com/${this.OWNER}/${this.CAMPO}/${this.BRANCH}/data/`; },
+  get API_TJMG() { return `https://api.github.com/repos/${this.OWNER}/${this.TJMG}/contents/data/`; },
+  get API_CAMPO(){ return `https://api.github.com/repos/${this.OWNER}/${this.CAMPO}/contents/data/`; },
+  SB_URL: 'https://rrlhtnwdokqbtkwrlsfa.supabase.co',
+  SB_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJybGh0bndkb2txYnRrd3Jsc2ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDQ1NDcsImV4cCI6MjA5MDQ4MDU0N30.aT-XBqF8nFkyn8tfCpI8ptanDgSY_uhNkcowDFkrx-0'
+};
+
+/* ── ESTADO ────────────────────────────────────────── */
+let SESS = null, TOKEN = '';
+let D = { periodicas: [], diario: [], usuarios: [], registros_campo: [] };
+let F_PER = 'todos';
+
+/* ── UTILS ─────────────────────────────────────────── */
+const el = id => document.getElementById(id);
+const qs = s => document.querySelector(s);
+function toast(msg, dur=2800){ const t=el('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'), dur); }
+function load(txt='Carregando…'){ el('load').classList.add('on'); el('load-txt').textContent=txt; }
+function unload(){ el('load').classList.remove('on'); }
+function fmt(d){ if(!d) return '—'; try{ const [y,m,dd]=(d.includes('T')?d.split('T')[0]:d).split('-'); return `${dd}/${m}/${y}`; }catch{ return d; } }
+function hoje(){ return new Date().toISOString().split('T')[0]; }
+function diasAte(d){ if(!d) return null; const dt=new Date(d+'T00:00:00'), h=new Date(); h.setHours(0,0,0,0); return Math.ceil((dt-h)/86400000); }
+function nomeAbrev(n){ if(!n) return '—'; const p=n.split(' '); return p.length>=2?`${p[0]} ${p[p.length-1]}`:p[0]; }
+function setSyncStatus(status, txt){
+  const d=el('sync-dot'), b=el('sync-bar'), t=el('sync-txt');
+  d.className='sync-dot'; b.className='sync-indicator';
+  if(status==='ok'){ d.classList.add('ok'); b.classList.add('synced'); }
+  else if(status==='err'){ d.classList.add('err'); b.classList.add('error'); }
+  else b.classList.add('syncing');
+  t.textContent=txt||'';
+}
+
+/* ── COMARCAS DROPDOWN ─────────────────────────────── */
+function popCom(regiao, selectId){
+  const sel=el(selectId); if(!sel) return;
+  const coms=(COMARCAS_REAIS[regiao]||[]).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  sel.innerHTML='<option value="">Selecione a comarca…</option>'+coms.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function populaComarcas(regiao, selectId){ popCom(regiao, selectId); }
+
+/* ── GITHUB API ────────────────────────────────────── */
+let _shas = {};
+async function ghRead(repo, file){
+  const raw = repo===CFG.CAMPO ? CFG.RAW_CAMPO : CFG.RAW_TJMG;
+  const r = await fetch(raw+file+'?_='+Date.now());
+  if(!r.ok) throw new Error(`Erro ${r.status} ao ler ${file}`);
+  return r.json();
+}
+async function ghWrite(repo, file, data){
+  const tok = localStorage.getItem('gh_token')||'';
+  if(!tok) throw new Error('sem_token');
+  const key = repo+'_'+file;
+  const apiBase = repo===CFG.CAMPO ? CFG.API_CAMPO : CFG.API_TJMG;
+  if(!_shas[key]){
+    const meta = await fetch(`https://api.github.com/repos/${CFG.OWNER}/${repo}/contents/data/${file}`,
+      { headers:{ Authorization:'token '+tok } });
+    if(meta.ok){ const j=await meta.json(); _shas[key]=j.sha; }
+  }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  const body = { message:`COMAP Campo: ${file} [${new Date().toISOString()}]`, content, branch:CFG.BRANCH };
+  if(_shas[key]) body.sha=_shas[key];
+  const resp = await fetch(`https://api.github.com/repos/${CFG.OWNER}/${repo}/contents/data/${file}`,{
+    method:'PUT', headers:{ Authorization:'token '+tok, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!resp.ok){ const e=await resp.json(); _shas[key]=null; throw new Error(e.message||'Erro ao salvar'); }
+  const result = await resp.json();
+  _shas[key] = result.content?.sha;
+  return result;
+}
+
+/* ── SUPABASE — escrita principal do campo ──────── */
+async function sbInsertDiario(reg){
+  const payload = {
+    id: reg.id, data: reg.data, local: reg.local,
+    usuario_email: reg.usuario_email||'', usuario_nome: reg.usuario_nome||'',
+    regiao: reg.regiao||'', 
+    manut_periodica: JSON.stringify(reg.manut_periodica||[]),
+    manut_dentro_periodo: reg.manut_dentro_periodo,
+    manut_justif: reg.manut_justif_periodo||'',
+    plano_integral: reg.plano_integral,
+    plano_justif: reg.plano_justif||'',
+    teve_chamados: reg.teve_chamados,
+    chamados: JSON.stringify(reg.chamados||[]),
+    chamados_no_prazo: reg.chamados_no_prazo,
+    chamados_justif: reg.chamados_justif||'',
+    notif_email: reg.notif_email||0,
+    notif_sei: reg.notif_sei||0,
+    notif_whats: reg.notif_whats||0,
+    teve_medicao: reg.teve_medicao||false,
+    obs: reg.obs||'',
+    origem: 'campo',
+    criado_em: reg.sincronizado_em||new Date().toISOString()
+  };
+  const resp = await fetch(`${CFG.SB_URL}/rest/v1/diario_campo`, {
+    method: 'POST',
+    headers: {
+      'apikey': CFG.SB_KEY,
+      'Authorization': 'Bearer '+CFG.SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify(payload)
+  });
+  if(!resp.ok){ const e=await resp.text(); console.warn('Supabase erro:',e); }
+  return resp.ok || resp.status===409;
+}
+async function sbSyncPendentes(){
+  /* Tenta re-enviar registros que falharam */
+  const pend = D.registros_campo.filter(r=>!r._sb_ok);
+  for(const r of pend){
+    try{ const ok=await sbInsertDiario(r); if(ok){r._sb_ok=true;} }catch(e){}
+  }
+}
+
+/* ── AUTH ─────────────────────────────────────────── */
+async function login(){
+  const email=(el('li-email').value||'').trim().toLowerCase();
+  const senha=(el('li-senha').value||'').trim();
+  const tok='';
+  if(!email||!senha){ el('login-err').textContent='Preencha e-mail e senha.'; return; }
+  el('login-err').textContent='Verificando…'; load('Autenticando…');
+  try{
+    const usr_list = await ghRead(CFG.TJMG, 'usuarios.json');
+    const u = usr_list.find(u=>(u.email||'').toLowerCase()===email && String(u.senha||'').trim()===senha);
+    if(!u){ el('login-err').textContent='E-mail ou senha incorretos.'; unload(); return; }
+    SESS={nome:u.nome, email:u.email, regiao:u.regiao};
+
+    localStorage.setItem('campo_sess', JSON.stringify(SESS));
+    await loadAll();
+    posLogin();
+  }catch(e){ el('login-err').textContent='Erro: '+e.message; unload(); }
+}
+function posLogin(){
+  unload();
+  el('pg-login').classList.remove('act');
+  el('topbar').style.display='flex';
+  el('navbar').style.display='flex';
+  el('sync-bar').style.display='flex';
+  el('tb-sub').textContent=`${SESS.regiao} · ${nomeAbrev(SESS.nome)}`;
+  el('h-nome').textContent=nomeAbrev(SESS.nome);
+  el('h-regiao').textContent=`Região: ${SESS.regiao}`;
+  el('h-data').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  renderHome(); renderPer(); renderDiario();
+  setSyncStatus('ok','Dados carregados · '+new Date().toLocaleTimeString('pt-BR'));
+}
+function logout(){
+  SESS=null; localStorage.removeItem('campo_sess');
+  ['topbar','navbar','sync-bar'].forEach(id=>el(id).style.display='none');
+  document.querySelectorAll('.pg:not(#pg-login)').forEach(p=>p.classList.remove('act'));
+  el('pg-login').classList.add('act');
+  el('li-senha').value=''; el('login-err').textContent='';
+}
+
+/* ── DATA ─────────────────────────────────────────── */
+function isMinha(r){
+  const my=(SESS?.regiao||'').toUpperCase();
+  if(['MASTER','ADMIN','COORD','COORDENADOR'].includes(my)) return true;
+  const rr=(r.regiao||'').toUpperCase();
+  return rr===my || rr.replace(/ /g,'_')===my.replace(/ /g,'_');
+}
+async function loadAll(){
+  setSyncStatus('sync','Sincronizando com GitHub…');
+  const [per, dir, usr] = await Promise.all([
+    ghRead(CFG.TJMG, 'periodicas.json'),
+    ghRead(CFG.TJMG, 'diario.json'),
+    ghRead(CFG.TJMG, 'usuarios.json')
+  ]);
+  D.periodicas = per; D.diario = dir; D.usuarios = usr;
+  // Carregar registros locais do campo
+  try{
+    const local = localStorage.getItem('campo_registros');
+    D.registros_campo = local ? JSON.parse(local) : [];
+    D.registros_campo.forEach(r=>{ if(!D.diario.find(d=>d.id===r.id)) D.diario.push(r); });
+  }catch(e){ D.registros_campo=[]; }
+  // Carregar diário do campo direto do Supabase (em background)
+  sbCarregarDiario().then(rows=>{
+    if(rows.length){ rows.forEach(r=>{ if(!D.diario.find(d=>d.id===r.id)) D.diario.push(r); }); renderDiario(); }
+  }).catch(()=>{});
+  setSyncStatus('ok', `Sincronizado · ${new Date().toLocaleTimeString('pt-BR')}`);
+}
+async function syncAll(){
+  load('Sincronizando…');
+  try{ await loadAll(); renderHome(); renderPer(); renderDiario(); toast('✅ Dados sincronizados!'); }
+  catch(e){ toast('Erro: '+e.message, 4000); setSyncStatus('err','Erro de sincronização'); }
+  finally{ unload(); }
+}
+
+/* ── NAVEGAÇÃO ─────────────────────────────────────── */
+function goPage(pg, btn){
+  document.querySelectorAll('.pg:not(#pg-login)').forEach(p=>p.classList.remove('act'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  el('pg-'+pg).classList.add('act');
+  if(btn) btn.classList.add('on');
+}
+function openM(id){ el(id).classList.add('open'); }
+function closeM(id){ el(id).classList.remove('open'); }
+
+/* ── HOME ─────────────────────────────────────────── */
+function renderHome(){
+  const minhas = D.periodicas.filter(isMinha);
+  const mes = new Date().getMonth()+1, ano = new Date().getFullYear();
+  const doMes = minhas.filter(r=>{ if(!r.prog_fim) return false; const [y,m]=r.prog_fim.split('-'); return parseInt(y)===ano&&parseInt(m)===mes; });
+  const concl = doMes.filter(r=>String(r.status||'').toUpperCase().includes('CONCLU'));
+  const meuDiario = D.diario.filter(d=>d.usuario_email===SESS?.email);
+  const hojeReg = meuDiario.filter(d=>d.data===hoje());
+
+  el('h-kpis').innerHTML=`
+    <div class="kcard" onclick="goPage('per',el('navbar').children[1])">
+      <div class="kval">${doMes.length}</div>
+      <div class="klbl">Periódicas do mês</div>
+    </div>
+    <div class="kcard" onclick="goPage('diario',el('navbar').children[2])">
+      <div class="kval ${hojeReg.length?'green':''}">${hojeReg.length}</div>
+      <div class="klbl">Diário hoje</div>
+    </div>
+  `;
+
+  // Progresso
+  if(doMes.length > 0){
+    el('h-progbar-wrap').hidden=false;
+    const pct = Math.round(concl.length/doMes.length*100);
+    el('h-prog').style.width=pct+'%';
+    el('h-prog-txt').textContent=`${concl.length}/${doMes.length} concluídas (${pct}%)`;
+  }
+
+  // Periódicas desta semana
+  const hoje2=new Date(), semana=new Date(hoje2); semana.setDate(semana.getDate()+7);
+  const daSemana=minhas.filter(r=>{
+    const fp=r.prog_fim; if(!fp) return false;
+    const d=new Date(fp+'T00:00:00');
+    return d>=hoje2&&d<=semana&&!String(r.status||'').toUpperCase().includes('CONCLU');
+  }).slice(0,5);
+
+  el('h-per-semana').innerHTML=daSemana.length===0
+    ?'<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Nenhuma periódica programada para esta semana ✅</div>'
+    :daSemana.map(r=>{
+        const d=diasAte(r.prog_fim);
+        const cor=d<=0?'var(--red)':d<=3?'var(--amber)':'var(--teal)';
+        return `<div class="per-card" onclick="verPer(${r.id})" style="margin-bottom:8px;">
+          <div class="per-card-hdr">
+            <div class="per-card-bar" style="background:${cor}"></div>
+            <div class="per-card-body">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">${r.comarca||'—'} · ${r.edificacao||'—'}</div>
+              <div style="font-size:13px;font-weight:700;">${(r.tipo_atend||'').replace('MANUTENÇÃO PERIÓDICA ','')}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:10px;font-weight:700;color:${cor};">${d===0?'HOJE':d<0?`${Math.abs(d)}d atraso`:d+'d'}</div>
+              <div style="font-size:9px;color:var(--text3);margin-top:2px;">${fmt(r.prog_fim)}</div>
+            </div>
+          </div>
+          <div class="per-card-footer">
+            <span class="chip chip-teal">${r.regiao||'—'}</span>
+            <span class="chip">Gp ${r.grupo||'—'}</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--teal);font-weight:600;" onclick="event.stopPropagation();iniciarPer(${r.id})">Registrar →</span>
+          </div>
+        </div>`;
+      }).join('');
+}
+
+/* ── PERIÓDICAS ─────────────────────────────────────── */
+function filtPer(v, btn){
+  F_PER=v;
+  document.querySelectorAll('#pg-per button.chip').forEach(b=>{ b.className='chip'; b.style.cursor='pointer'; b.style.border='none'; b.style.padding='6px 12px'; });
+  if(btn){ btn.className='chip chip-teal'; btn.style.cursor='pointer'; btn.style.border='none'; btn.style.padding='6px 12px'; }
+  renderPer();
+}
+function renderPer(){
+  const q=(el('per-q')?.value||'').toLowerCase();
+  let rows=D.periodicas.filter(isMinha);
+  if(F_PER==='agendado') rows=rows.filter(r=>String(r.status||'').toUpperCase().includes('AGENDADO'));
+  else if(F_PER==='andamento') rows=rows.filter(r=>r.data_inicio&&!r.data_conclusao);
+  else if(F_PER==='concluido') rows=rows.filter(r=>String(r.status||'').toUpperCase().includes('CONCLU'));
+  if(q) rows=rows.filter(r=>[r.comarca,r.edificacao,r.status,r.regiao,r.contrato,r.tipo_atend].join(' ').toLowerCase().includes(q));
+  el('per-sub').textContent=`${rows.length} registro(s)`;
+  if(!rows.length){ el('per-list').innerHTML='<div class="empty"><div class="empty-ico">🔄</div><div class="empty-title">Nenhuma periódica</div></div>'; return; }
+  el('per-list').innerHTML=rows.map(r=>{
+    const s=String(r.status||'').toUpperCase();
+    const d=diasAte(r.prog_fim);
+    const atr=!s.includes('CONCLU')&&!s.includes('CANCEL')&&r.prog_fim&&new Date(r.prog_fim)<new Date();
+    const cls=s.includes('CONCLU')?'b-ok':atr?'b-atraso':s.includes('AGENDADO')?'b-blue':'b-pend';
+    return `<div class="crd" onclick="verPer(${r.id})">
+      <div class="crd-top">
+        <div class="crd-ico" style="background:${s.includes('CONCLU')?'#F0FDF4':atr?'#FEF2F2':'#F0F9FF'};">${s.includes('CONCLU')?'✅':atr?'⚠️':'🔄'}</div>
+        <div class="crd-body">
+          <div class="crd-label">#${r.id} · ${(r.tipo_atend||'').replace('MANUTENÇÃO PERIÓDICA ','').replace('MANUTENÇÃO PERIÓDICA','').trim()}</div>
+          <div class="crd-title">${r.edificacao||'—'} · ${r.comarca||'—'}</div>
+          <div class="crd-sub">📅 ${fmt(r.prog_inicio)} → ${fmt(r.prog_fim)}${d!==null&&!s.includes('CONCLU')?(d<0?` · <span style="color:var(--red);font-weight:700;">${Math.abs(d)}d atrasado</span>`:d===0?' · <span style="color:var(--amber);font-weight:700;">HOJE</span>':` · ${d}d restantes`):''}
+          </div>
+        </div>
+        <div class="crd-right"><span class="bdg ${cls}">${r.status||'AGENDADO'}</span></div>
+      </div>
+      <div class="chips">
+        <span class="chip chip-teal">${r.regiao||'—'}</span>
+        <span class="chip">Gp ${r.grupo||'—'}</span>
+        ${r.contrato?`<span class="chip">${r.contrato}</span>`:''}
+        ${atr?'<span class="chip chip-red">Atrasado</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function verPer(id){
+  const r=D.periodicas.find(p=>p.id===id); if(!r) return;
+  const s=String(r.status||'').toUpperCase();
+  const aberta=!s.includes('CONCLU')&&!s.includes('CANCEL');
+  el('m-per-t').textContent=`Periódica #${r.id}`;
+  el('m-per-b').innerHTML=`
+    <div class="chips" style="margin-bottom:14px;">
+      <span class="chip chip-teal">${r.regiao||'—'}</span>
+      <span class="chip">${r.contrato||'—'}</span>
+      <span class="bdg ${s.includes('CONCLU')?'b-ok':s.includes('AGENDADO')?'b-blue':'b-pend'}">${r.status||'—'}</span>
+    </div>
+    <div class="drow"><div class="dlbl">Comarca</div><div class="dval"><strong>${r.comarca||'—'}</strong></div></div>
+    <div class="drow"><div class="dlbl">Edificação</div><div class="dval">${r.edificacao||'—'}</div></div>
+    <div class="drow"><div class="dlbl">Grupo</div><div class="dval">${r.grupo||'—'}</div></div>
+    <div class="drow"><div class="dlbl">Tipo</div><div class="dval">${r.tipo_atend||'—'}</div></div>
+    <div class="drow"><div class="dlbl">Programado</div><div class="dval">${fmt(r.prog_inicio)} → ${fmt(r.prog_fim)}</div></div>
+    <div class="drow"><div class="dlbl">Realizado</div><div class="dval">${fmt(r.data_inicio)||'—'} → ${fmt(r.data_conclusao)||'Em aberto'}</div></div>
+    <div class="drow"><div class="dlbl">Dias Trabalhados</div><div class="dval">${r.dias_trabalhados||'—'}</div></div>
+    ${r.atividade_pendente?`<div class="drow"><div class="dlbl">Pendência</div><div class="dval" style="color:var(--red);">${r.atividade_pendente}</div></div>`:''}
+    ${aberta?`<div class="brow">
+      <button class="btn btn-ghost" onclick="closeM('m-per');abrirModalDiario(null,${r.id})">📋 Registrar no Diário</button>
+      <button class="btn btn-teal" onclick="closeM('m-per');iniciarPer(${r.id})">✅ Concluir</button>
+    </div>`:''}`;
+  openM('m-per');
+}
+async function iniciarPer(id){
+  const r=D.periodicas.find(p=>p.id===id); if(!r) return;
+  const dt=prompt('Data de conclusão (AAAA-MM-DD):',hoje()); if(!dt) return;
+  const dias=prompt('Quantos dias foram trabalhados?',''); 
+  const pend=prompt('Atividade pendente? (deixe em branco se nenhuma):','');
+  r.status=r.prog_fim&&dt<=r.prog_fim?'CONCLUÍDO (NO PRAZO)':'CONCLUÍDO (ATRASO)';
+  r.data_conclusao=dt; r.dias_trabalhados=parseInt(dias)||null; r.atividade_pendente=pend||null;
+  load('Atualizando periódica…');
+  try{
+    // Atualizar periódica no Supabase (sem token)
+    await fetch(`${CFG.SB_URL}/rest/v1/periodicas_campo`,{
+      method:'POST',
+      headers:{'apikey':CFG.SB_KEY,'Authorization':'Bearer '+CFG.SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({id:r.id,status:r.status,data_conclusao:dt,dias_trabalhados:r.dias_trabalhados,atividade_pendente:r.atividade_pendente,regiao:r.regiao,comarca:r.comarca,edificacao:r.edificacao,tipo_atend:r.tipo_atend,usuario_email:SESS?.email,updated_at:new Date().toISOString()})
+    }).catch(e=>console.warn('SB per:',e));
+    renderPer(); renderHome(); toast(`✅ Periódica concluída — ${r.status}`);
+  }catch(e){ toast('Erro: '+e.message,4000); }
+  finally{ unload(); }
+}
+
+/* ── DIÁRIO ─────────────────────────────────────────── */
+function renderDiario(){
+  const todos=[...D.diario].filter(d=>d.usuario_email===SESS?.email||!d.usuario_email);
+  const sorted=todos.sort((a,b)=>b.data.localeCompare(a.data)).slice(0,30);
+  const mes=new Date().getMonth()+1, ano=new Date().getFullYear();
+  const doMes=todos.filter(d=>{ if(!d.data) return false; const [y,m]=d.data.split('-'); return parseInt(y)===ano&&parseInt(m)===mes; });
+  el('diario-sub').textContent=`${doMes.length} registro(s) este mês`;
+  el('diario-list').innerHTML=sorted.length===0
+    ?'<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Nenhum registro</div><div class="empty-sub">Toque + para adicionar o diário de hoje</div></div>'
+    :sorted.map(d=>{
+        const isHoje=d.data===hoje();
+        return `<div class="crd" onclick="abrirModalDiario('${d.data}')">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="width:38px;height:38px;background:${isHoje?'var(--gold)':'var(--bg2)'};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${isHoje?'📍':'📋'}</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <div style="font-size:13px;font-weight:700;">${fmt(d.data)}</div>
+                ${isHoje?'<span class="bdg b-ok">HOJE</span>':''}
+                <span class="chip" style="margin-left:auto;font-size:10px;">${d.local||'CAMPO'}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap;">
+                <span>🔄 Per: ${d.manut_dentro_periodo===false?'⚠ Fora':'OK'}</span>
+                <span>🚨 Emer: ${d.teve_chamados?(d.chamados||[]).length+'×':'Sem'}</span>
+                <span>📣 Notif: ${(d.notif_email||0)+(d.notif_sei||0)+(d.notif_whats||0)}</span>
+              </div>
+              ${d.obs?`<div style="font-size:10px;color:var(--text3);margin-top:5px;font-style:italic;">${(d.obs||'').substring(0,70)}${d.obs.length>70?'…':''}</div>`:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+}
+function abrirDiarioHoje(){ abrirModalDiario(hoje()); }
+function abrirModalDiario(data, perIdPrefill=null){
+  const dt=data||hoje();
+  const exist=D.diario.find(e=>e.data===dt&&e.usuario_email===SESS?.email);
+  // Pegar periódicas do dia se houver
+  const perDoDia=D.periodicas.filter(r=>isMinha(r)&&(r.prog_inicio===dt||r.prog_fim===dt||r.data_inicio===dt||r.data_conclusao===dt));
+  const perPrefill=perIdPrefill?D.periodicas.find(p=>p.id===perIdPrefill):null;
+  const d=exist||{
+    data:dt, local:'CAMPO', usuario_nome:SESS?.nome, usuario_email:SESS?.email,
+    regiao:SESS?.regiao, manut_dentro_periodo:true, plano_integral:true,
+    teve_chamados:false, chamados_no_prazo:true,
+    notif_email:0, notif_sei:0, notif_whats:0, obs:'', chamados:[], manut_periodica:[]
+  };
+  // Auto-preencher comarcas das periódicas do dia
+  if(!exist && (perDoDia.length>0||perPrefill)){
+    const coms=[...new Set([...(perPrefill?[perPrefill.comarca]:[]), ...perDoDia.map(p=>p.comarca)].filter(Boolean))];
+    d.manut_periodica=coms;
+  }
+  el('m-diario-t').textContent=`📋 Diário · ${fmt(dt)}`;
+  el('m-diario-b').innerHTML=`
+    <input type="hidden" id="di-id" value="${d.id||''}">
+
+    <div class="scrd">
+      <div class="scrd-title">📍 Dados Gerais</div>
+      <div class="row2">
+        <div class="fld"><label>Data</label><input type="date" id="di-dt" value="${dt}"></div>
+        <div class="fld"><label>Local</label>
+          <div class="toggle-group">
+            <div class="toggle-opt${d.local==='CAMPO'?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-loc').value='CAMPO'">🏗 Campo</div>
+            <div class="toggle-opt${d.local==='ESCRITÓRIO'?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-loc').value='ESCRITÓRIO'">🏢 Escritório</div>
+          </div>
+          <input type="hidden" id="di-loc" value="${d.local||'CAMPO'}">
+        </div>
+      </div>
+    </div>
+
+    ${perDoDia.length>0?`<div class="scrd" style="background:#F0FDF4;border-color:#BBF7D0;">
+      <div class="scrd-title" style="color:var(--green);">🔄 Periódicas Programadas para Hoje</div>
+      ${perDoDia.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #BBF7D0;">
+        <span style="font-size:18px;">📍</span>
+        <div style="flex:1;"><div style="font-size:12px;font-weight:700;">${p.edificacao||'—'} · ${p.comarca||'—'}</div><div style="font-size:10px;color:var(--green);">${p.tipo_atend||'—'} · Grupo ${p.grupo||'—'}</div></div>
+        <span class="bdg ${String(p.status||'').toUpperCase().includes('CONCLU')?'b-ok':'b-blue'}">${p.status||'AGENDADO'}</span>
+      </div>`).join('')}
+    </div>`:''}
+
+    <div class="scrd">
+      <div class="scrd-title">🔄 Manutenção Periódica</div>
+      <div class="fld"><label>Comarcas Atendidas</label>
+        <textarea id="di-coms" rows="2" placeholder="Ex.: Montes Claros, Paracatu, Salinas…">${Array.isArray(d.manut_periodica)?d.manut_periodica.join(', '):(d.manut_periodica||'')}</textarea>
+      </div>
+      <div class="fld"><label>Dentro do período programado?</label>
+        <div class="toggle-group">
+          <div class="toggle-opt${d.manut_dentro_periodo!==false?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-prd').value='sim'">✅ Sim</div>
+          <div class="toggle-opt${d.manut_dentro_periodo===false?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-prd').value='nao'">❌ Não</div>
+        </div>
+        <input type="hidden" id="di-prd" value="${d.manut_dentro_periodo===false?'nao':'sim'}">
+        <input id="di-pjust" style="margin-top:6px;" placeholder="Justificativa (se Não)…" value="${d.manut_justif_periodo||''}">
+      </div>
+      <div class="fld"><label>Plano realizado integralmente?</label>
+        <div class="toggle-group">
+          <div class="toggle-opt${d.plano_integral!==false?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-pln').value='sim'">✅ Sim</div>
+          <div class="toggle-opt${d.plano_integral===false?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-pln').value='nao'">❌ Não</div>
+        </div>
+        <input type="hidden" id="di-pln" value="${d.plano_integral===false?'nao':'sim'}">
+        <input id="di-pljust" style="margin-top:6px;" placeholder="Item pendente…" value="${d.plano_justif||''}">
+      </div>
+    </div>
+
+    <div class="scrd">
+      <div class="scrd-title">🚨 Manutenção Emergencial</div>
+      <div class="fld"><label>Teve chamados emergenciais?</label>
+        <div class="toggle-group">
+          <div class="toggle-opt${d.teve_chamados?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-cham').value='sim'">🚨 Sim</div>
+          <div class="toggle-opt${!d.teve_chamados?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-cham').value='nao'">— Não</div>
+        </div>
+        <input type="hidden" id="di-cham" value="${d.teve_chamados?'sim':'nao'}">
+      </div>
+      <div class="fld"><label>Chamados (uma por linha: Comarca · Nº OSE)</label>
+        <textarea id="di-chamados" rows="3" placeholder="Montes Claros · OSE-042&#10;Paracatu · OSE-043">${Array.isArray(d.chamados)?d.chamados.join('\n'):''}</textarea>
+      </div>
+      <div class="fld"><label>Atendidos no prazo?</label>
+        <div class="toggle-group">
+          <div class="toggle-opt${d.chamados_no_prazo!==false?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-prazo').value='sim'">✅ Sim</div>
+          <div class="toggle-opt${d.chamados_no_prazo===false?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-prazo').value='nao'">❌ Não</div>
+        </div>
+        <input type="hidden" id="di-prazo" value="${d.chamados_no_prazo===false?'nao':'sim'}">
+        <input id="di-prazojust" style="margin-top:6px;" placeholder="Justificativa (se Não)…" value="${d.chamados_justif||''}">
+      </div>
+    </div>
+
+    <div class="scrd">
+      <div class="scrd-title">📣 Notificações e Comunicações</div>
+      <div class="row3">
+        <div class="fld"><label>E-mails</label><input type="number" id="di-em" value="${d.notif_email||0}" min="0" style="text-align:center;font-size:16px;font-weight:700;"></div>
+        <div class="fld"><label>SEI</label><input type="number" id="di-sei" value="${d.notif_sei||0}" min="0" style="text-align:center;font-size:16px;font-weight:700;"></div>
+        <div class="fld"><label>WhatsApp</label><input type="number" id="di-wh" value="${d.notif_whats||0}" min="0" style="text-align:center;font-size:16px;font-weight:700;"></div>
+      </div>
+      <div class="fld"><label>Houve alguma medição?</label>
+        <div class="toggle-group">
+          <div class="toggle-opt${d.teve_medicao?' on':''}" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on');el('di-med').value='sim'">📊 Sim</div>
+          <div class="toggle-opt${!d.teve_medicao?' on':''}" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on');el('di-med').value='nao'">— Não</div>
+        </div>
+        <input type="hidden" id="di-med" value="${d.teve_medicao?'sim':'nao'}">
+      </div>
+      <div class="fld"><label>Observações Gerais</label>
+        <textarea id="di-obs" rows="3" placeholder="Anotações, intercorrências, pendências…">${d.obs||''}</textarea>
+      </div>
+    </div>
+
+    <div class="brow">
+      <button class="btn btn-ghost" onclick="closeM('m-diario')" style="flex:.5;">Cancelar</button>
+      <button class="btn btn-navy" onclick="salvarDiario()" style="flex:1.5;">💾 Salvar e Sincronizar</button>
+    </div>
+  `;
+  openM('m-diario');
+}
+async function salvarDiario(){
+  const dt=el('di-dt').value; if(!dt){toast('Informe a data');return;}
+  const editId=el('di-id').value;
+  const reg={
+    id: editId||`campo_${(SESS?.email||'').split('@')[0]}_${dt}_${Date.now()}`,
+    data:dt, local:el('di-loc').value,
+    usuario_nome:SESS?.nome, usuario_email:SESS?.email, regiao:SESS?.regiao,
+    manut_periodica: el('di-coms').value.split(',').map(s=>s.trim()).filter(Boolean),
+    manut_dentro_periodo: el('di-prd').value==='sim',
+    manut_justif_periodo: el('di-pjust').value.trim()||null,
+    plano_integral: el('di-pln').value==='sim',
+    plano_justif: el('di-pljust').value.trim()||null,
+    teve_chamados: el('di-cham').value==='sim',
+    chamados: el('di-chamados').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    chamados_no_prazo: el('di-prazo').value==='sim',
+    chamados_justif: el('di-prazojust').value.trim()||null,
+    notif_email: parseInt(el('di-em').value)||0,
+    notif_sei: parseInt(el('di-sei').value)||0,
+    notif_whats: parseInt(el('di-wh').value)||0,
+    teve_medicao: el('di-med').value==='sim',
+    obs: el('di-obs').value.trim()||null,
+    origem:'campo', sincronizado_em: new Date().toISOString()
+  };
+
+  // Atualizar localmente
+  if(editId){ const i=D.registros_campo.findIndex(e=>e.id===editId); if(i>=0) D.registros_campo[i]=reg; else D.registros_campo.push(reg); }
+  else D.registros_campo.push(reg);
+  if(!D.diario.find(d=>d.id===reg.id)) D.diario.push(reg);
+  else { const i=D.diario.findIndex(d=>d.id===reg.id); D.diario[i]=reg; }
+
+  load('Salvando…');
+  setSyncStatus('sync','Sincronizando…');
+  // Persistir localmente
+  try{ localStorage.setItem('campo_registros', JSON.stringify(D.registros_campo)); }catch(e){}
+  // Enviar ao Supabase (sem token GitHub)
+  let sbOk=false;
+  try{ sbOk = await sbInsertDiario(reg); }catch(e){ console.warn('Supabase:', e); }
+  unload();
+  closeM('m-diario'); renderDiario(); renderHome();
+  if(sbOk){
+    setSyncStatus('ok','Sincronizado · '+new Date().toLocaleTimeString('pt-BR'));
+    toast('✅ Registro salvo e sincronizado!');
+  } else {
+    setSyncStatus('sync','Salvo localmente — tentando sincronizar…');
+    toast('✅ Registro salvo!');
+    setTimeout(()=>sbSyncPendentes(), 3000);
+  }
+}
+
+/* ── RELATÓRIOS ─────────────────────────────────────── */
+function gerarRelPer(){
+  const rows=D.periodicas.filter(isMinha);
+  const w=window.open('','_blank');
+  const total=rows.length, concl=rows.filter(r=>String(r.status||'').toUpperCase().includes('CONCLU')).length;
+  const atr=rows.filter(r=>!String(r.status||'').toUpperCase().includes('CONCLU')&&r.prog_fim&&new Date(r.prog_fim)<new Date()).length;
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>COMAP · Relatório Periódicas</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box;}body{font-family:'DM Sans',sans-serif;font-size:12px;color:#0F172A;}
+  .no-print{position:fixed;top:0;left:0;right:0;background:#0B1F3E;color:#fff;padding:10px 20px;display:flex;gap:10px;align-items:center;z-index:99;}
+  .no-print button{padding:7px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:700;}
+  .btn-p{background:#F2A519;color:#0B1F3E;}.btn-c{background:rgba(255,255,255,.15);color:#fff;}
+  .page{width:210mm;min-height:297mm;margin:0 auto;padding:60px 18mm 18mm;}
+  @media print{.no-print{display:none!important;}.page{padding:16mm 18mm;}}
+  .hdr{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:3px solid #0B1F3E;margin-bottom:20px;}
+  .hdr-logo{width:50px;height:50px;background:#0B1F3E;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;}
+  .hdr h1{font-size:18px;font-weight:700;color:#0B1F3E;}
+  .hdr p{font-size:10px;color:#64748B;margin-top:2px;}
+  .hdr-right{margin-left:auto;text-align:right;font-size:10px;color:#64748B;}
+  .hdr-right strong{display:block;font-size:13px;color:#0B1F3E;font-weight:700;}
+  .title-bar{background:#0B1F3E;color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:18px;}
+  .title-bar h2{font-size:16px;font-weight:700;}.title-bar p{font-size:10px;opacity:.7;margin-top:2px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+  .kpi{border:1px solid #E2E8F0;border-radius:8px;padding:12px;text-align:center;}
+  .kpi .v{font-size:24px;font-weight:700;color:#0B1F3E;font-variant-numeric:tabular-nums;}
+  .kpi .v.g{color:#15803D;}.kpi .v.r{color:#B91C1C;}.kpi .v.a{color:#B45309;}
+  .kpi .l{font-size:9px;color:#64748B;margin-top:2px;text-transform:uppercase;letter-spacing:.3px;}
+  table{width:100%;border-collapse:collapse;font-size:10px;}
+  thead tr{background:#0B1F3E;color:#fff;}
+  thead th{padding:7px 9px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;}
+  tbody tr:nth-child(even){background:#F8FAFC;}
+  tbody td{padding:6px 9px;border-bottom:1px solid #E2E8F0;}
+  .bdg{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;}
+  .bdg-g{background:#DCFCE7;color:#15803D;}.bdg-a{background:#FEF3C7;color:#B45309;}.bdg-b{background:#DBEAFE;color:#1D4ED8;}.bdg-r{background:#FEE2E2;color:#B91C1C;}
+  .footer{position:fixed;bottom:12mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:9px;color:#94A3B8;border-top:1px solid #E2E8F0;padding-top:5px;}
+  @media print{.footer{position:fixed;}}
+  </style></head><body>
+  <div class="no-print">
+    <span style="font-weight:700;">📄 Relatório de Periódicas · COMAP Campo</span>
+    <button class="btn-p" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn-c" onclick="window.close()">✕</button>
+  </div>
+  <div class="page">
+    <div class="hdr">
+      <div class="hdr-logo">C</div>
+      <div><h1>COMAP · TJMG</h1><p>Coordenação de Manutenção Predial · Fiscalização em Campo</p></div>
+      <div class="hdr-right"><strong>Relatório de Periódicas</strong>Emitido em ${new Date().toLocaleString('pt-BR')}<br>Região: ${SESS?.regiao||'Geral'}</div>
+    </div>
+    <div class="title-bar"><h2>Manutenções Periódicas — Status Geral</h2><p>${total} registros · Região ${SESS?.regiao||'Geral'}</p></div>
+    <div class="kpis">
+      <div class="kpi"><div class="v">${total}</div><div class="l">Total</div></div>
+      <div class="kpi"><div class="v g">${concl}</div><div class="l">Concluídas</div></div>
+      <div class="kpi"><div class="v r">${atr}</div><div class="l">Atrasadas</div></div>
+      <div class="kpi"><div class="v a">${total>0?Math.round(concl/total*100):0}%</div><div class="l">Eficiência</div></div>
+    </div>
+    <table><thead><tr><th>#</th><th>Comarca</th><th>Edificação</th><th>Grupo</th><th>Tipo</th><th>Contrato</th><th>Prog. Início</th><th>Prog. Fim</th><th>Real Início</th><th>Real Fim</th><th>Dias</th><th>Status</th></tr></thead>
+    <tbody>${rows.map(r=>{
+      const s=String(r.status||'').toUpperCase();
+      const atraso=!s.includes('CONCLU')&&r.prog_fim&&new Date(r.prog_fim)<new Date();
+      const cls=s.includes('CONCLU')?'bdg-g':atraso?'bdg-r':s.includes('AGENDADO')?'bdg-b':'bdg-a';
+      return `<tr><td>${r.id}</td><td>${r.comarca||'—'}</td><td style="font-size:9px;">${r.edificacao||'—'}</td><td style="text-align:center;">${r.grupo||'—'}</td><td style="font-size:9px;">${(r.tipo_atend||'').replace('MANUTENÇÃO PERIÓDICA ','')}</td><td style="font-size:9px;">${r.contrato||'—'}</td><td>${r.prog_inicio?r.prog_inicio.split('-').reverse().join('/'):'—'}</td><td>${r.prog_fim?r.prog_fim.split('-').reverse().join('/'):'—'}</td><td>${r.data_inicio?r.data_inicio.split('-').reverse().join('/'):'—'}</td><td>${r.data_conclusao?r.data_conclusao.split('-').reverse().join('/'):'—'}</td><td style="text-align:center;">${r.dias_trabalhados||'—'}</td><td><span class="bdg ${cls}">${r.status||'—'}</span></td></tr>`;
+    }).join('')}</tbody></table>
+    <div class="footer"><span>COMAP · TJMG · Fiscalização em Campo · ${SESS?.nome||''}</span><span>${new Date().toLocaleString('pt-BR')}</span></div>
+  </div></body></html>`);
+  w.document.close();
+}
+
+function gerarRelDiario(){
+  const mes=new Date().getMonth()+1, ano=new Date().getFullYear();
+  const rows=D.diario.filter(d=>{ if(!d.data||d.usuario_email!==SESS?.email) return false; const [y,m]=d.data.split('-'); return parseInt(y)===ano&&parseInt(m)===mes; }).sort((a,b)=>a.data.localeCompare(b.data));
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>COMAP · Diário de Fiscalização</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box;}body{font-family:'DM Sans',sans-serif;font-size:12px;color:#0F172A;}
+  .no-print{position:fixed;top:0;left:0;right:0;background:#0B1F3E;color:#fff;padding:10px 20px;display:flex;gap:10px;align-items:center;z-index:99;}
+  .no-print button{padding:7px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:700;}
+  .btn-p{background:#F2A519;color:#0B1F3E;}.btn-c{background:rgba(255,255,255,.15);color:#fff;}
+  .page{width:210mm;min-height:297mm;margin:0 auto;padding:60px 18mm 18mm;}
+  @media print{.no-print{display:none!important;}.page{padding:16mm 18mm;}}
+  .hdr{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:3px solid #0B1F3E;margin-bottom:20px;}
+  .hdr-logo{width:50px;height:50px;background:#0B1F3E;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;}
+  .hdr h1{font-size:18px;font-weight:700;color:#0B1F3E;}.hdr p{font-size:10px;color:#64748B;margin-top:2px;}
+  .hdr-right{margin-left:auto;text-align:right;font-size:10px;color:#64748B;}
+  .hdr-right strong{display:block;font-size:13px;color:#0B1F3E;font-weight:700;}
+  .title-bar{background:#0B1F3E;color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:18px;}
+  .title-bar h2{font-size:16px;font-weight:700;}.title-bar p{font-size:10px;opacity:.7;margin-top:2px;}
+  .entry{border:1px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:14px;page-break-inside:avoid;}
+  .entry-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #E2E8F0;}
+  .entry-date{font-size:14px;font-weight:700;color:#0B1F3E;}
+  .entry-loc{background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;}
+  .drow{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #F1F5F9;}
+  .dlbl{font-size:9px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.4px;width:35%;flex-shrink:0;}
+  .dval{font-size:11px;flex:1;color:#0F172A;}
+  .footer{position:fixed;bottom:12mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-size:9px;color:#94A3B8;border-top:1px solid #E2E8F0;padding-top:5px;}
+  @media print{.footer{position:fixed;}}
+  </style></head><body>
+  <div class="no-print">
+    <span style="font-weight:700;">📋 Diário de Fiscalização · COMAP Campo</span>
+    <button class="btn-p" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn-c" onclick="window.close()">✕</button>
+  </div>
+  <div class="page">
+    <div class="hdr">
+      <div class="hdr-logo">📋</div>
+      <div><h1>COMAP · TJMG</h1><p>Diário de Fiscalização em Campo</p></div>
+      <div class="hdr-right"><strong>Diário de Fiscalização</strong>${['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes-1]} ${ano}<br>Fiscal: ${SESS?.nome||'—'}<br>Região: ${SESS?.regiao||'—'}</div>
+    </div>
+    <div class="title-bar"><h2>Diário de Fiscalização em Campo</h2><p>${rows.length} registro(s) · ${['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes-1]}/${ano}</p></div>
+    ${rows.map(d=>`<div class="entry">
+      <div class="entry-hdr">
+        <div class="entry-date">${d.data?d.data.split('-').reverse().join('/'):''}</div>
+        <span class="entry-loc">${d.local||'CAMPO'}</span>
+      </div>
+      <div class="drow"><div class="dlbl">Comarcas Atendidas</div><div class="dval">${Array.isArray(d.manut_periodica)?d.manut_periodica.join(', '):(d.manut_periodica||'—')}</div></div>
+      <div class="drow"><div class="dlbl">Manutenção no Período</div><div class="dval">${d.manut_dentro_periodo===false?`❌ Não — ${d.manut_justif_periodo||''}`:'✅ Sim'}</div></div>
+      <div class="drow"><div class="dlbl">Plano Integral</div><div class="dval">${d.plano_integral===false?`❌ Não — ${d.plano_justif||''}`:'✅ Sim'}</div></div>
+      <div class="drow"><div class="dlbl">Chamados Emergenciais</div><div class="dval">${d.teve_chamados?`${(d.chamados||[]).length} chamado(s) — ${d.chamados_no_prazo===false?'Fora do prazo: '+d.chamados_justif:'Atendidos no prazo'}`:'Sem chamados'}</div></div>
+      <div class="drow"><div class="dlbl">Notificações</div><div class="dval">E-mail: ${d.notif_email||0} · SEI: ${d.notif_sei||0} · WhatsApp: ${d.notif_whats||0}</div></div>
+      ${d.obs?`<div class="drow"><div class="dlbl">Observações</div><div class="dval">${d.obs}</div></div>`:''}
+    </div>`).join('')}
+    <div class="footer"><span>COMAP · TJMG · ${SESS?.nome||''} · Região ${SESS?.regiao||''}</span><span>Emitido em ${new Date().toLocaleString('pt-BR')}</span></div>
+  </div></body></html>`);
+  w.document.close();
+}
+
+async function sbCarregarDiario(){
+  if(!SESS?.email) return [];
+  const resp = await fetch(`${CFG.SB_URL}/rest/v1/diario_campo?usuario_email=eq.${encodeURIComponent(SESS.email)}&order=data.desc&limit=60`,{
+    headers:{'apikey':CFG.SB_KEY,'Authorization':'Bearer '+CFG.SB_KEY}
+  });
+  if(!resp.ok) return [];
+  const rows = await resp.json();
+  return rows.map(r=>({
+    id:r.id, data:r.data, local:r.local||'CAMPO',
+    usuario_nome:r.usuario_nome, usuario_email:r.usuario_email, regiao:r.regiao,
+    manut_periodica: typeof r.manut_periodica==='string'?JSON.parse(r.manut_periodica||'[]'):r.manut_periodica||[],
+    manut_dentro_periodo:r.manut_dentro_periodo, manut_justif_periodo:r.manut_justif||'',
+    plano_integral:r.plano_integral, plano_justif:r.plano_justif||'',
+    teve_chamados:r.teve_chamados,
+    chamados: typeof r.chamados==='string'?JSON.parse(r.chamados||'[]'):r.chamados||[],
+    chamados_no_prazo:r.chamados_no_prazo, chamados_justif:r.chamados_justif||'',
+    notif_email:r.notif_email||0, notif_sei:r.notif_sei||0, notif_whats:r.notif_whats||0,
+    teve_medicao:r.teve_medicao, obs:r.obs, origem:'campo'
+  }));
+}
+
+/* ── INIT ───────────────────────────────────────────── */
+(async()=>{
+
+  const sess = localStorage.getItem('campo_sess');
+  if(sess){
+    try{
+      SESS=JSON.parse(sess);
+      load('Carregando dados…');
+      await loadAll();
+      posLogin();
+    }catch(e){ unload(); }
+  }
+})();
+</script>
+</body>
+</html>
